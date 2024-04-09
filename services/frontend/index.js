@@ -35,6 +35,28 @@ function newBook(book) {
     return div;
 }
 
+function searchProductByID(id) {
+    fetch('http://localhost:3000/product/' + id)
+        .then((response) => {
+            if (response.ok) {
+                return response.json();
+            }
+            throw new Error('Livro não encontrado');
+        })
+        .then((product) => {
+            // Limpa a lista de livros
+            const booksContainer = document.querySelector('.books');
+            booksContainer.innerHTML = '';
+
+            // Adiciona o livro encontrado à lista
+            booksContainer.appendChild(newBook(product));
+        })
+        .catch((error) => {
+            console.error(error);
+            swal('Erro', error.message, 'error');
+        });
+}
+
 function calculateShipping(id, cep) {
     fetch('http://localhost:3000/shipping/' + cep)
         .then((data) => {
@@ -53,6 +75,19 @@ function calculateShipping(id, cep) {
 }
 
 document.addEventListener('DOMContentLoaded', function () {
+
+    const searchButton = document.getElementById('searchButton');
+    const searchInput = document.getElementById('searchInput');
+
+    searchButton.addEventListener('click', function () {
+        const id = searchInput.value.trim();
+        if (id) {
+            searchProductByID(id);
+        } else {
+            swal('Erro', 'Por favor, insira um ID válido', 'error');
+        }
+    });
+    
     const books = document.querySelector('.books');
 
     fetch('http://localhost:3000/products')
